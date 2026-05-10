@@ -1,1 +1,139 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YT MUSIC | CYBER UI</title>
 
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        dark: '#0f172a',
+        darker: '#020617',
+        neon: '#00f0ff',
+      },
+      fontFamily: {
+        cyber: ['Orbitron', 'sans-serif']
+      }
+    }
+  }
+}
+</script>
+
+<style type="text/tailwindcss">
+@layer utilities {
+  .text-glow {
+    text-shadow: 0 0 10px #00f0ff, 0 0 20px #00f0ff;
+  }
+}
+</style>
+</head>
+
+<body class="bg-darker text-white font-cyber flex">
+
+<!-- SIDEBAR -->
+<aside class="w-64 bg-dark border-r border-neon hidden lg:block">
+  <div class="p-6">
+    <h1 class="text-2xl font-black text-glow">YT SYSTEM</h1>
+    <p class="text-xs text-cyan-300">MP3 DOWNLOADER</p>
+  </div>
+
+  <nav class="mt-6 space-y-2">
+    <div class="px-6 py-3 bg-cyan-500/20 border-r-4 border-cyan-400">
+      🎵 Downloader
+    </div>
+    <div class="px-6 py-3 text-gray-400">History (soon)</div>
+    <div class="px-6 py-3 text-gray-400">Playlist (soon)</div>
+  </nav>
+</aside>
+
+<!-- MAIN -->
+<main class="flex-1">
+
+<!-- HEADER -->
+<header class="bg-dark border-b border-cyan-400 p-4 flex justify-between">
+  <h2 class="text-lg text-glow">DASHBOARD</h2>
+  <span class="text-green-400 text-sm">● ONLINE</span>
+</header>
+
+<!-- CONTENT -->
+<div class="p-6">
+
+  <!-- CARD -->
+  <div class="max-w-xl mx-auto bg-dark border border-cyan-400 rounded-2xl p-6 shadow-lg">
+
+    <h2 class="text-2xl font-bold text-glow mb-4">🎵 YT Music Player</h2>
+
+    <!-- INPUT -->
+    <input id="query" type="text"
+      placeholder="Judul / link YouTube..."
+      class="w-full p-3 rounded-lg bg-black border border-cyan-400 outline-none mb-3">
+
+    <!-- BUTTON -->
+    <button onclick="play()"
+      class="w-full bg-cyan-400 text-black font-bold p-3 rounded-lg hover:bg-white transition">
+      SEARCH & PLAY
+    </button>
+
+    <!-- LOADING -->
+    <p id="loading" class="text-sm text-gray-400 mt-3"></p>
+
+    <!-- RESULT -->
+    <div id="result" class="mt-5"></div>
+
+  </div>
+
+</div>
+
+</main>
+
+<script>
+async function play() {
+  const q = document.getElementById('query').value
+  const result = document.getElementById('result')
+  const loading = document.getElementById('loading')
+
+  if (!q) return alert("Masukin dulu!")
+
+  result.innerHTML = ""
+  loading.innerText = "⏳ Processing..."
+
+  try {
+    const res = await fetch(`/play?q=${encodeURIComponent(q)}`)
+    const data = await res.json()
+
+    if (!data.status) {
+      loading.innerText = ""
+      return alert(data.msg)
+    }
+
+    loading.innerText = ""
+
+    result.innerHTML = `
+      <img src="${data.cover}" class="w-full rounded-xl mb-3 border border-cyan-400">
+      <h3 class="text-lg font-bold">${data.title}</h3>
+      <p class="text-sm text-gray-400">${data.duration}</p>
+
+      <audio controls class="w-full mt-3">
+        <source src="${data.download}">
+      </audio>
+
+      <a href="${data.download}" download
+        class="block mt-3 text-center bg-cyan-400 text-black p-2 rounded-lg font-bold hover:bg-white">
+        ⬇ Download MP3
+      </a>
+    `
+  } catch (err) {
+    loading.innerText = ""
+    alert("Error: " + err.message)
+  }
+}
+</script>
+
+</body>
+</html>
